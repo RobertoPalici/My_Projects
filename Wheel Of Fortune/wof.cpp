@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <string>
 #include <random>
-#include <unistd.h>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 ifstream fin("puzzle.in");
@@ -13,6 +14,9 @@ int wheel[] = {2500, 2500, 2500, 600, 600, 600, 700, 700, 700, 600, 600, 600, 65
                0, 0, 0};
 
 char used[100];
+
+using namespace std::this_thread;
+using namespace std::chrono;
 
 struct Puzzle
 {
@@ -96,7 +100,7 @@ bool checkSame(char string1[100], char string2[100])
 bool checkUsed(char string[100], char s)
 {
     for (int i = 0; i < strlen(string); i++)
-    {   //printf("Compar %c cu %c\n", string[i], s);
+    { // printf("Compar %c cu %c\n", string[i], s);
         if (string[i] == s)
             return true;
     }
@@ -191,7 +195,7 @@ void play(Puzzle &puzzle, Jucator &p)
         {
             printf("Litere folosite: %s\n", used);
             printf("%s ai %d dolari. Spin, solve sau vocala?\nIntrodu comanda mai jos:\n", p.nume, p.suma);
-            
+
             cin >> comanda;
             printf("\n\nComanda aleasa: %s\n", comanda);
             if (strcmp(comanda, "spin") != 0 && strcmp(comanda, "solve") != 0 && strcmp(comanda, "vocala") != 0)
@@ -216,12 +220,12 @@ void play(Puzzle &puzzle, Jucator &p)
                     fail = 1;
                     printf("BANKRUPT :(((((((\n\n");
                     p.suma = 0;
-                    sleep(3);
+                    sleep_for(seconds(3));
                     break;
                 case 1:
                     fail = 1;
-                    printf("LOSE A TURN :((((((((((\n\n");
-                    sleep(3);
+                    printf("LOSE A TURN :(((((((((( \n\n");
+                    sleep_for(seconds(3));
                 }
             }
             else if (val == 888)
@@ -286,12 +290,16 @@ void play(Puzzle &puzzle, Jucator &p)
                     cin >> consoana;
                     checkUsed(used, consoana);
                     if (!isConsoana(consoana))
-                       { printf("Litera %c nu este consoana!\nIncearca din nou:\n\n", consoana);
-                       sleep(2);}
+                    {
+                        printf("Litera %c nu este consoana!\nIncearca din nou:\n\n", consoana);
+                        sleep_for(seconds(2));
+                    }
 
                     else if (isConsoana(consoana) && checkUsed(used, consoana))
-                        {printf("Consoana %c a fost deja folosita!\nIncearca din nou:\n\n");
-                        sleep(2);}
+                    {
+                        printf("Consoana %c a fost deja folosita!\nIncearca din nou:\n\n");
+                        sleep_for(seconds(5));
+                    }
                     else
                         validcons = 1;
                 } while (validcons == 0);
@@ -310,7 +318,7 @@ void play(Puzzle &puzzle, Jucator &p)
                 {
                     printf("Bravo! In puzzle sunt %d de %c!\n\n", counter, consoana);
                     p.suma = p.suma + counter * val;
-                    sleep(3);
+                    sleep_for(seconds(3));
                     if (checkConsoane(puzzle.secret, puzzle.pzl) == false)
                         printf("Nu mai sunt consoane in puzzle!\n");
                     if (checkSame(puzzle.secret, puzzle.pzl) == true)
@@ -324,7 +332,7 @@ void play(Puzzle &puzzle, Jucator &p)
                 else
                 {
                     printf("Niciun %c din pacate\n\n", consoana);
-                    sleep(2);
+                    sleep_for(seconds(3));
                     fail = 1;
                 }
             }
@@ -357,7 +365,7 @@ void play(Puzzle &puzzle, Jucator &p)
             else if (corect == 1)
             {
                 printf("Din pacate raspunsul este gresit...\n\n");
-                sleep(2);
+                sleep_for(seconds(3));
                 fail = 1;
             }
         }
@@ -399,7 +407,7 @@ void play(Puzzle &puzzle, Jucator &p)
                 if (counter > 0)
                 {
                     printf("Bravo! In puzzle sunt %d de %c!\n\n", counter, vocala);
-                    sleep(3);
+                    sleep_for(seconds(3));
 
                     if (checkVocale(puzzle.secret, puzzle.pzl) == false)
                         printf("Nu mai sunt vocale in puzzle!\n");
@@ -414,7 +422,7 @@ void play(Puzzle &puzzle, Jucator &p)
                 else
                 {
                     printf("Niciun %c din pacate\n\n", vocala);
-                    sleep(2);
+                    sleep_for(seconds(3));
                     fail = 1;
                 }
             }
@@ -428,7 +436,7 @@ void firstPuzzle(Wof &joc)
     joc.p3.suma = 0;
 
     printf("Sa trecem la primul puzzle!\nCategoria este: %s\n\n", joc.puzzle1.ctg);
-    sleep(3);
+    sleep_for(seconds(3));
     do
     {
         play(joc.puzzle1, joc.p1);
@@ -491,9 +499,9 @@ int main()
     preparePuzzle(joc);
     firstPuzzle(joc);
     memset(used, 0, sizeof(used));
-    sleep(5);
+    sleep_for(seconds(5));
     secondPuzzle(joc);
     memset(used, 0, sizeof(used));
-    sleep(5);
+    sleep_for(seconds(5));
     thirdPuzzle(joc);
 }
